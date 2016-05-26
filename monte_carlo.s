@@ -17,6 +17,7 @@ circleR:			dd 		0
 inFigure:			dd		0	
 decisionFlag:		dq		0
 zero:				dq		0	
+value:				dq		0
 	
 section .text
 
@@ -51,14 +52,30 @@ circle:
  	mov r10, [rcx+8]
  	mov [circleR], r10
 
- 	mov rcx, 1
+convert_to_float:
+	fild dword [rectangleX]
+	fstp dword [rectangleX]
+	; fild dword [rectangleY]
+	; fstp dword [rectangleY]
+	; fild dword [rectangleXSize]
+	; fstp dword [rectangleXSize]
+	; fild dword [rectangleYSize]
+	; fstp dword [rectangleYSize]
+	; fild dword [circleY]
+	; fstp dword [circleY]
+	; fild dword [circleX]
+	; fstp dword [circleX]
+	; fild dword [circleR]
+	; fstp dword [circleR]
+
+ 	mov rcx, 0
  	mov rax, 0
 
 loop_trough_random_num:
 	
 check_rectangle:
 	movss xmm0, [rsi + rcx*4] 
-	subss xmm0, [rectangleX]
+	subsd xmm0, [rectangleX]
 	movss xmm1, [zero]
 	comiss xmm0, xmm1
 	jb check_circle
@@ -98,10 +115,21 @@ loop_condition:
 	jle loop_trough_random_num
 end:
 	mov [inFigure], eax
-	fild dword [inFigure]
-	fstp dword [inFigure]
+	movss xmm1, [inFigure]
+	fild dword [screenWidth]
+	fstp dword [screenWidth]
+	mulss xmm1, [screenWidth]
+	fild dword [screenHeight]
+	fstp dword [screenHeight]
+	mulss xmm1, [screenHeight]
+	fild dword [randomNumberCount]
+	fstp dword [randomNumberCount]
+	divss xmm1, [randomNumberCount]
+	movd [value], xmm1
+	fild dword [value]
+	fstp dword [value]
 	
-  	movd xmm0, [inFigure]
+  	movd xmm0, [value]
 
     mov rsp, rbp
     pop rbp

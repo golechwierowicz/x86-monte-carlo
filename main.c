@@ -21,9 +21,8 @@ enum MYKEYS {
 };
 
 void fillArrayWithRandomNum(int count, float tab[count][2]){
-  tab[0][0] = SCREEN_W/2;
-  tab[0][1] = SCREEN_H/2;
-    for(int i = 1; i < count; i++){
+
+    for(int i = 0; i < count; i++){
         tab[i][0] = rand()%SCREEN_W;
         tab[i][1] = rand()%SCREEN_H;
     }
