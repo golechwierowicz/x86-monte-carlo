@@ -8,10 +8,10 @@ all : main.o monte_carlo.o
 	./$(OUT)
 
 main.o : main.c
-	$(CC) $(CFLAGS) -c main.c -o main.o
+	$(CC) -g $(CFLAGS) -c main.c -o main.o
 
 monte_carlo.o : monte_carlo.s
-	nasm -f macho64 monte_carlo.s
+	nasm -g -f macho64 monte_carlo.s
 
 clean:
 	rm *.o && ls

@@ -21,13 +21,9 @@ enum MYKEYS {
 };
 
 void fillArrayWithRandomNum(int count, float tab[count][2]){
-    int rand_x = 0, rand_y = 0;
-    srand(time(NULL));
     for(int i = 0; i < count; i++){
-        rand_x = rand()%SCREEN_W;
-        rand_y = rand()%SCREEN_H;
-        tab[i][0] = rand_x;
-        tab[i][1] = rand_y;
+        tab[i][0] = rand()%SCREEN_W;
+        tab[i][1] = rand()%SCREEN_H;
     }
 }
 
@@ -47,12 +43,13 @@ void fillRect(float x, float y, float x_size, float y_size, float tab[4]){
 
 int main(int argc, char **argv)
 {
+   srand(time(NULL));
    ALLEGRO_DISPLAY *display = NULL;
    ALLEGRO_EVENT_QUEUE *event_queue = NULL;
    ALLEGRO_TIMER *timer = NULL;
    unsigned int randomNumberCount = 10000;
    float movDistance = 4.0;
-   int randomDiff = 10000;
+   int randomDiff = 1000;
    float bouncer_size_x = 30.0;
    float bouncer_size_y = 30.0;
    float bouncer_x = SCREEN_W / 2.0 - bouncer_size_x / 2.0;
@@ -63,7 +60,9 @@ int main(int argc, char **argv)
    float rectArray[4];
    float circleArray[3];
    float circle_radius = 20.0;
-   fillArrayWithRandomNum(MAX_INT, randomNumber);
+   float monte_carlo_result = 0;
+   unsigned char * buffer;
+   ALLEGRO_LOCKED_REGION *locked;
 
    bool key[16] = { false, false, false, false, false, false, false, false, false, false, false, false, false, false ,false, false};
    bool redraw = true;
@@ -350,14 +349,24 @@ int main(int argc, char **argv)
          fillCircle(bouncer_circ_x, bouncer_circ_y, circle_radius, circleArray);
          fillRect(bouncer_x, bouncer_y, bouncer_size_x, bouncer_size_y, rectArray);
          fillArrayWithRandomNum(randomNumberCount, randomNumber);
-            
-         float x = monte_carlo(randomNumberCount, randomNumber, rectArray, circleArray , SCREEN_W, SCREEN_H, display);
-         
-         char output[10];
-         snprintf(output, 10, "%f", x);
+
+         locked = al_lock_bitmap(al_get_backbuffer(display), ALLEGRO_PIXEL_FORMAT_ABGR_8888, ALLEGRO_LOCK_WRITEONLY);
+         buffer = locked->data;
+         monte_carlo_result = monte_carlo(randomNumberCount, 
+          randomNumber, 
+          rectArray, 
+          circleArray, 
+          SCREEN_W, 
+          SCREEN_H, 
+          buffer);
+
+         al_unlock_bitmap(al_get_backbuffer(display));
+         char output[30];
+         snprintf(output, 30, "%f\n", monte_carlo_result);
+         //printf("%f, %f", rectArray[0], rectArray[1]);
+ 
          al_clear_to_color(al_map_rgb(255,255,255));
          al_draw_text(font, al_map_rgb(0.0, 0.0, 0.0), SCREEN_W/2, 40.0, ALLEGRO_ALIGN_CENTRE, output);
- 
          al_draw_rectangle(bouncer_x, bouncer_y, bouncer_x + bouncer_size_x, bouncer_y + bouncer_size_y, al_map_rgb(col, 0.0, col), 1.0);
          al_draw_circle(bouncer_circ_x, bouncer_circ_y, circle_radius, al_map_rgb(col, 0.0, col), 1.0);
          al_flip_display();
