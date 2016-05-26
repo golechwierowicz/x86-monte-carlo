@@ -4,17 +4,17 @@ extern printf
 
 section .data
 
-randomNumberCount:	resd	1
-screenWidth:		resd 	1
-screenHeight:		resd 	1
-rectangleX:			resd	1
-rectangleXSize:		resd 	1
-rectangleY:			resd	1
-rectangleYSize:		resd	1
-circleX:			resd 	1
-circleY:			resd	1
-circleR:			resd 	1
-inFigure:			resd	1
+randomNumberCount:	dd		0	
+screenWidth:		dd 		0	
+screenHeight:		dd 		0	
+rectangleX:			dd		0	
+rectangleXSize:		dd 		0	
+rectangleY:			dd		0	
+rectangleYSize:		dd		0	
+circleX:			dd 		0	
+circleY:			dd		0	
+circleR:			dd 		0	
+inFigure:			dd		0	
 decisionFlag:		dq		0
 zero:				dq		0	
 	
@@ -80,7 +80,18 @@ check_rectangle:
 	inc rax
 	jmp loop_condition
 check_circle:
-
+	movss xmm0, [rsi + rcx*4]
+	subss xmm0, [circleX]
+	mulss xmm0, xmm0
+	movss xmm1, [rsi + rcx*4 + 4]
+	subss xmm1, [circleY]
+	mulss xmm1, xmm1
+	addss xmm0, xmm1
+	movss xmm1, [circleR]
+	mulss xmm1, xmm1
+	comiss xmm0, xmm1
+	ja loop_condition
+	inc rax
 loop_condition:	
 	add rcx, 1
 	cmp ecx, [randomNumberCount]
