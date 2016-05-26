@@ -17,11 +17,13 @@ const int SCREEN_H = 600;
 const unsigned char col = 127;
 const int MAX_INT = 1 << 15;
 enum MYKEYS {
-   KEY_UP, KEY_DOWN, KEY_LEFT, KEY_RIGHT, KEY_W, KEY_S, KEY_A, KEY_D, KEY_Z, KEY_X, KEY_C, KEY_V, KEY_P, KEY_O, KEY_B, KEY_N
+   KEY_UP, KEY_DOWN, KEY_LEFT, KEY_RIGHT, KEY_W, KEY_S, KEY_A, KEY_D, KEY_Z, KEY_X, KEY_C, KEY_V, KEY_P, KEY_O, KEY_B, KEY_N, KEY_Q
 };
 
 void fillArrayWithRandomNum(int count, float tab[count][2]){
-    for(int i = 0; i < count; i++){
+  tab[0][0] = SCREEN_W/2;
+  tab[0][1] = SCREEN_H/2;
+    for(int i = 1; i < count; i++){
         tab[i][0] = rand()%SCREEN_W;
         tab[i][1] = rand()%SCREEN_H;
     }
@@ -63,10 +65,12 @@ int main(int argc, char **argv)
    float monte_carlo_result = 0;
    unsigned char * buffer;
    ALLEGRO_LOCKED_REGION *locked;
+   char output[30];
 
-   bool key[16] = { false, false, false, false, false, false, false, false, false, false, false, false, false, false ,false, false};
+   bool key[17] = { false, false, false, false, false, false, false, false, false, false, false, false, false, false ,false, false , false};
    bool redraw = true;
    bool doexit = false;
+   bool calculate = false;
 
 
    if(!al_init()) {
@@ -195,6 +199,7 @@ int main(int argc, char **argv)
                 randomNumberCount-= randomDiff ;
          }
 
+         calculate = key[KEY_Q] ? true : false;
          redraw = true;
       }
       else if(ev.type == ALLEGRO_EVENT_DISPLAY_CLOSE) {
@@ -265,8 +270,9 @@ int main(int argc, char **argv)
             case ALLEGRO_KEY_N:
                 key[KEY_N] = true;
                 break;
-
-
+            case ALLEGRO_KEY_Q:
+                key[KEY_Q] = true;
+                break;
          }
       }
       else if(ev.type == ALLEGRO_EVENT_KEY_UP) {
@@ -339,36 +345,38 @@ int main(int argc, char **argv)
             case ALLEGRO_KEY_N:
                 key[KEY_N] = false;
                 break;
-
-
+            case ALLEGRO_KEY_Q:
+                key[KEY_Q] = false;
+                break;
          }
       }
       if(redraw && al_is_event_queue_empty(event_queue)) {
          redraw = false;
-
+         memset(output, 0, sizeof(output));
          fillCircle(bouncer_circ_x, bouncer_circ_y, circle_radius, circleArray);
          fillRect(bouncer_x, bouncer_y, bouncer_size_x, bouncer_size_y, rectArray);
          fillArrayWithRandomNum(randomNumberCount, randomNumber);
-
+ 
+         
          locked = al_lock_bitmap(al_get_backbuffer(display), ALLEGRO_PIXEL_FORMAT_ABGR_8888, ALLEGRO_LOCK_WRITEONLY);
          buffer = locked->data;
-         monte_carlo_result = monte_carlo(randomNumberCount, 
+          if(calculate){
+          monte_carlo_result = monte_carlo(randomNumberCount, 
           randomNumber, 
           rectArray, 
           circleArray, 
           SCREEN_W, 
           SCREEN_H, 
           buffer);
-
+        }
+        
          al_unlock_bitmap(al_get_backbuffer(display));
-         char output[30];
-         snprintf(output, 30, "%f\n", monte_carlo_result);
-         //printf("%f, %f", rectArray[0], rectArray[1]);
- 
          al_clear_to_color(al_map_rgb(255,255,255));
-         al_draw_text(font, al_map_rgb(0.0, 0.0, 0.0), SCREEN_W/2, 40.0, ALLEGRO_ALIGN_CENTRE, output);
          al_draw_rectangle(bouncer_x, bouncer_y, bouncer_x + bouncer_size_x, bouncer_y + bouncer_size_y, al_map_rgb(col, 0.0, col), 1.0);
          al_draw_circle(bouncer_circ_x, bouncer_circ_y, circle_radius, al_map_rgb(col, 0.0, col), 1.0);
+         
+         snprintf(output, 30, "%f\n", monte_carlo_result);
+         al_draw_text(font, al_map_rgb(0.0, 0.0, 0.0), SCREEN_W/2, 40.0, ALLEGRO_ALIGN_CENTRE, output);
          al_flip_display();
       }
    }

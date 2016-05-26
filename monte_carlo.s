@@ -56,42 +56,28 @@ circle:
 
 loop_trough_random_num:
 	
-	mov r12, [rsi + rcx*4 + 4]
-
 check_rectangle:
-	fld qword [rsi + rcx*4]
-	fsub qword [rectangleX]
-	fstp qword [decisionFlag]
-	fld qword [decisionFlag]
-	fld qword [zero]
-	fcomip
-	jle check_circle
+	movss xmm0, [rsi + rcx*4] 
+	subss xmm0, [rectangleX]
+	movss xmm1, [zero]
+	comiss xmm0, xmm1
+	jb check_circle
+	movss xmm1, [rectangleXSize]
+	comiss xmm0, xmm1
+	ja check_circle
 
-	fld qword [rsi + rcx*4]
-	fsub qword [rectangleX]
-	fstp qword [decisionFlag]
-	fld qword [decisionFlag]
-	fld qword [rectangleXSize]
-	fcomip
-	jge check_circle
+	movss xmm0, [rsi + rcx*4 + 4] 
+	subss xmm0, [rectangleY]
+	movss xmm1, [zero]
+	comiss xmm0, xmm1
+	jb check_circle
 
-	fld qword [rsi + rcx*4]
-	fsub qword [rectangleY]
-	fstp qword [decisionFlag]
-	fld qword [decisionFlag]
-	fld qword [zero]
-	fcomip
-	jle check_circle
+	movss xmm1, [rectangleYSize]
+	comiss xmm0, xmm1
+	ja check_circle
 
-	fld qword [rsi + rcx*4]
-	fsub qword [rectangleY]
-	fstp qword [decisionFlag]
-	fld qword [decisionFlag]
-	fld qword [rectangleYSize]
-	fcomip
-	jge check_circle
 	;; means its in rectangle
-	add rax, 1
+	inc rax
 	jmp loop_condition
 check_circle:
 
@@ -100,8 +86,11 @@ loop_condition:
 	cmp ecx, [randomNumberCount]
 	jle loop_trough_random_num
 end:
-	; fild dword [rcx]
-  	movd xmm0, [rsi]
+	mov [inFigure], eax
+	fild dword [inFigure]
+	fstp dword [inFigure]
+	
+  	movd xmm0, [inFigure]
 
     mov rsp, rbp
     pop rbp
