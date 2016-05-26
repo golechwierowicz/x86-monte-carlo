@@ -15,6 +15,8 @@ circleX:			resd 	1
 circleY:			resd	1
 circleR:			resd 	1
 inFigure:			resd	1
+decisionFlag:		dq		0
+zero:				dq		0	
 	
 section .text
 
@@ -54,19 +56,39 @@ circle:
 
 loop_trough_random_num:
 	
-	mov r11, [rsi + rcx*4]
 	mov r12, [rsi + rcx*4 + 4]
-	
+
 check_rectangle:
-	sub r11, [rectangleX]
-	cmp r11d, 0
+	fld qword [rsi + rcx*4]
+	fsub qword [rectangleX]
+	fstp qword [decisionFlag]
+	fld qword [decisionFlag]
+	fld qword [zero]
+	fcomip
 	jle check_circle
-	cmp r11d, [rectangleX]
+
+	fld qword [rsi + rcx*4]
+	fsub qword [rectangleX]
+	fstp qword [decisionFlag]
+	fld qword [decisionFlag]
+	fld qword [rectangleXSize]
+	fcomip
 	jge check_circle
-	sub r12, [rectangleY]
-	cmp r12d, 0
+
+	fld qword [rsi + rcx*4]
+	fsub qword [rectangleY]
+	fstp qword [decisionFlag]
+	fld qword [decisionFlag]
+	fld qword [zero]
+	fcomip
 	jle check_circle
-	cmp r12d, [rectangleY]
+
+	fld qword [rsi + rcx*4]
+	fsub qword [rectangleY]
+	fstp qword [decisionFlag]
+	fld qword [decisionFlag]
+	fld qword [rectangleYSize]
+	fcomip
 	jge check_circle
 	;; means its in rectangle
 	add rax, 1
