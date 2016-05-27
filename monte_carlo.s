@@ -91,22 +91,6 @@ check_rectangle:
 
 	;; means its in rectangle
 	inc rax
-
-	jmp set_pixel
-check_circle:
-
-	movss xmm0, [rsi + rcx*4]
-	subss xmm0, [circleX]
-	mulss xmm0, xmm0
-	movss xmm1, [rsi + rcx*4 + 4]
-	subss xmm1, [circleY]
-	mulss xmm1, xmm1
-	addss xmm0, xmm1
-	movss xmm1, [circleR]
-	mulss xmm1, xmm1
-	comiss xmm0, xmm1
-	ja set_pixel
-	inc rax
 set_pixel:
 	mov bl, 0	
 	cvtsi2ss xmm1, [pitch]
@@ -126,6 +110,41 @@ set_pixel:
 	mov byte [r10], bl
 	inc r10
 	mov byte [r10], bl
+	jmp loop_condition
+check_circle:
+
+	movss xmm0, [rsi + rcx*4]
+	subss xmm0, [circleX]
+	mulss xmm0, xmm0
+	movss xmm1, [rsi + rcx*4 + 4]
+	subss xmm1, [circleY]
+	mulss xmm1, xmm1
+	addss xmm0, xmm1
+	movss xmm1, [circleR]
+	mulss xmm1, xmm1
+	comiss xmm0, xmm1
+	ja loop_condition
+	inc rax
+set_pixell:
+	mov bl, 0	
+	cvtsi2ss xmm1, [pitch]
+	movss xmm2, [rsi+4*rcx + 4] ; y
+	mulss xmm1, xmm2 ; y * offset
+	cvtsi2ss xmm3, [four]
+	movss xmm2, [rsi+4*rcx]
+	mulss xmm2, xmm3 ; x*4
+	addss xmm1, xmm2
+	mov r10, [rbp+24]
+	cvtss2si r11, xmm1
+	; conver to int
+	add r10, r11
+	inc r10
+	mov byte [r10], bl
+	inc r10
+	mov byte [r10], bl
+	inc r10
+	mov byte [r10], bl
+
 loop_condition:
 	add ecx, 2
 	cmp ecx, [randomNumberCount]
