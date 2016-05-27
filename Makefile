@@ -4,7 +4,7 @@ LFLAGS= -lallegro -lallegro_main -lallegro_primitives -lallegro_font -lallegro_t
 OUT=out.o
 
 all : main.o monte_carlo.o
-	$(CC) $(CFLAGS) -o $(OUT) main.o monte_carlo.o $(LFLAGS)
+	$(CC) -g $(CFLAGS) -o $(OUT) main.o monte_carlo.o $(LFLAGS)
 	./$(OUT)
 
 main.o : main.c

@@ -16,6 +16,11 @@ inFigure:			dd		0
 decisionFlag:		dq		0
 zero:				dq		0	
 value:				dq		0
+pitch:				dd 		0
+colour:				dd 		127
+four:				dd 		4
+y:					dd 		0
+x: 					dd 		0
 	
 section .text
 
@@ -27,6 +32,10 @@ _monte_carlo:
 general:
 	shl rdi, 1
     mov [randomNumberCount], rdi
+    push rax
+    mov rax, [rbp + 16]
+    mov [pitch], rax
+    pop rax
     mov [screenWidth], r8
  	mov [screenHeight], r9
 
@@ -98,7 +107,26 @@ check_circle:
 	comiss xmm0, xmm1
 	ja loop_condition
 	inc rax
-loop_condition:	
+loop_condition:
+	mov bl, 0	
+	cvtsi2ss xmm1, [pitch]
+	movss xmm2, [rsi+4*rcx + 4]
+	mulss xmm1, xmm2
+	movss xmm2, [rsi+4*rcx]
+	addss xmm1, xmm2
+	cvtsi2ss xmm2, [four]
+	mulss xmm1, xmm2
+	mov r10, [rbp+24]
+	cvtss2si r11, xmm1
+	; conver to int
+	add r10, r11
+	inc r10
+	mov byte [r10], bl
+	inc r10
+	mov byte [r10], bl
+	inc r10
+	mov byte [r10], bl
+
 	add ecx, 2
 	cmp ecx, [randomNumberCount]
 	jl loop_trough_random_num
