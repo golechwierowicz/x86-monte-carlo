@@ -1,7 +1,5 @@
 DEFAULT REL
 
-extern printf
-
 section .data
 
 randomNumberCount:	dd		0	
@@ -27,7 +25,8 @@ _monte_carlo:
     mov rbp, rsp
 
 general:
-    mov [randomNumberCount], rdi    
+	shl rdi, 1
+    mov [randomNumberCount], rdi
     mov [screenWidth], r8
  	mov [screenHeight], r9
 
@@ -52,32 +51,20 @@ circle:
  	mov r10, [rcx+8]
  	mov [circleR], r10
 
-convert_to_float:
-	fild dword [rectangleX]
-	fstp dword [rectangleX]
-	; fild dword [rectangleY]
-	; fstp dword [rectangleY]
-	; fild dword [rectangleXSize]
-	; fstp dword [rectangleXSize]
-	; fild dword [rectangleYSize]
-	; fstp dword [rectangleYSize]
-	; fild dword [circleY]
-	; fstp dword [circleY]
-	; fild dword [circleX]
-	; fstp dword [circleX]
-	; fild dword [circleR]
-	; fstp dword [circleR]
-
  	mov rcx, 0
  	mov rax, 0
 
 loop_trough_random_num:
-	
+	; mov r10, [rbp+16]
+	; mov dl, 0xCC
+	; mov [r10d], dl
+
 check_rectangle:
 	movss xmm0, [rsi + rcx*4] 
-	subsd xmm0, [rectangleX]
-	movss xmm1, [zero]
+	subss xmm0, [rectangleX]
+	movss xmm1,  [zero]
 	comiss xmm0, xmm1
+
 	jb check_circle
 	movss xmm1, [rectangleXSize]
 	comiss xmm0, xmm1
@@ -95,8 +82,10 @@ check_rectangle:
 
 	;; means its in rectangle
 	inc rax
+
 	jmp loop_condition
 check_circle:
+
 	movss xmm0, [rsi + rcx*4]
 	subss xmm0, [circleX]
 	mulss xmm0, xmm0
@@ -110,9 +99,9 @@ check_circle:
 	ja loop_condition
 	inc rax
 loop_condition:	
-	add rcx, 1
+	add ecx, 2
 	cmp ecx, [randomNumberCount]
-	jle loop_trough_random_num
+	jl loop_trough_random_num
 end:
 	mov [inFigure], eax
 	movss xmm1, [inFigure]
@@ -128,7 +117,7 @@ end:
 	movd [value], xmm1
 	fild dword [value]
 	fstp dword [value]
-	
+
   	movd xmm0, [value]
 
     mov rsp, rbp
